@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -14,16 +15,26 @@ func main() {
 		"d": 50,
 	}
 
-	
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Saksit Jantaraplin")
+	router:=mux.NewRouter()
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "index.html")
 	})
-	http.HandleFunc("/users/", func(w http.ResponseWriter, r *http.Request) {
-		name:=r.URL.Path[len("/users/"):]
+	router.HandleFunc("/signup", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "signup.html")
+	})
+	router.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "login.html")
+	})
+
+	router.HandleFunc("/users/{name}", func(w http.ResponseWriter, r *http.Request) {
+		// name:=r.URL.Path[len("/users/"):]
+		vars:=mux.Vars(r)
+		name:=vars["name"]
 		age:=users[name]
 		fmt.Fprintf(w, "User name is %s %d years old", name, age)
-	})
-	http.ListenAndServe(":8080", nil)
+	}).Methods("GET")
+
+	http.ListenAndServe(":3001", router)
 
 }
 

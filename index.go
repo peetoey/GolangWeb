@@ -4,9 +4,17 @@ import (
 	"fmt"
 	"net/http"
 	"github.com/gorilla/mux"
+	"html/template"
 )
 
+type Product struct{
+	Name string
+	Price int
+}
+
 func main() {
+
+	var templates = template.Must(template.ParseFiles("index.html"))
 
 	users:=map[string]int {
 		"a": 20,
@@ -16,9 +24,13 @@ func main() {
 	}
 
 	router:=mux.NewRouter()
+
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "index.html")
+		// http.ServeFile(w, r, "index.html")
+		myProduct:=Product{"นมสด", 500}
+		templates.ExecuteTemplate(w, "index.html", myProduct)
 	})
+
 	router.HandleFunc("/signup", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "signup.html")
 	})
@@ -34,7 +46,7 @@ func main() {
 		fmt.Fprintf(w, "User name is %s %d years old", name, age)
 	}).Methods("GET")
 
-	http.ListenAndServe(":3001", router)
+	http.ListenAndServe(":8080", router)
 
 }
 
